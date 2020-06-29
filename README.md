@@ -1,9 +1,5 @@
-# Linux2020
-辽宁大学 计算机科学与技术 2019-2020第二学期
+﻿统计项目代码行数和文件数shell脚本
 
-linux操作系统 大作业报告提交地址
-
-提交指南
-fork 本仓库repository
-创建文件夹，命名方式为学号姓名，例如2019323张大帅
-提交pull request
+1、下载脚本CodeCount.sh
+2、执行脚本CodeCount.sh（如果没有执行权限，增加其权限（chmod +x CodeCount.sh））
+3、根据脚本提示输入即可
