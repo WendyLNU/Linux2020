@@ -1,0 +1,276 @@
+Linux大作业项目计划书
+
+
+一、项目内容
+利用Linux实现对自己的成绩查询。
+二、项目背景
+学校教务系统并没有专门的对于之前的考试成绩的收录，可以通过查询自己已修科目找到自己的成绩，但是这个成绩是混乱的，无法区分该成绩是哪一个学期的成绩，并且无法检索自己的成绩（通过检索课程名字查询该课的成绩）。该项目主要的实施，主要是为了让学生便于查询自己之前的成绩，方便核实或填写一些资料。
+三、系统功能
+该系统主要用来查询学生自己的成绩。
+
+四：过程
+1、租用阿里云服务
+2、利用Python爬取数据并且放在数据库中
+Linux系统中一般会自带Python 可以通过命令Python 或Python3查看
+我的linux系统中已经安装Python3
+3、搭建LAMP环境
+A、 安装Apache    sudo apt-get install apache2
+B、 安装MySQL    sudo apt-get install mysql server
+C、 安装php       sudo apt-get install libapache2-mod-php5
+4、安装w3m       sudo apt-get install w3m w3m-img-y
+5、完成代码
+由于php和html的代码在本机上写较为方便，所以是由本机写成之后上传到阿里云服务器。
+Python代码：
+	import time
+import lxml
+from lxml import etree
+from selenium import webdriver
+import re
+from bs4 import BeautifulSoup
+import pymysql
+url="http://jwgl.lnu.edu.cn/zhxt_bks/zhxt_bks.html"
+driver = webdriver.Chrome()
+driver.get(url)
+input_username = driver.find_element_by_id('input_username')input_password = driver.find_element_by_id('input_password')
+input_username.send_keys('171491518')
+input_password.send_keys('2017meng')
+loginButton = driver.find_element_by_id('loginButton')
+loginButton.click()
+
+tree = etree.HTML(driver.page_source)
+href = tree.xpath('/pls/wwwbks/bkscjcx.yxkc')
+for i in href:
+	url = 'http://jwgl.lnu.edu.cn/zhxt_bks/' + i
+driver.get(url)
+for i in range(200):
+    js = 'var q = document.querySelector("#pager_scroll").scrollTop = 10000'
+    driver.execute_script(js)
+tree = etree.HTML(driver.page_source)
+mark = []
+time = []
+score = []
+type = []
+name = []
+for i in range(1,640):
+	td_name = tree.xpath('//*[@id="table"]/tr[' + str(i) + ']/td[1]/text()')
+	td_mark = tree.xpath('//*[@id="table"]/tr[' + str(i) + ']/td[5]/text()')
+	td_score = tree.xpath('//*[@id="table"]/tr[' + str(i) + ']/td[3]/text()')
+	td_time = tree.xpath('//*[@id="table"]/tr[' + str(i) + ']/td[4]/text()')
+	td_type = tree.xpath('//*@id = "title"].string)
+	name.append(td_name)
+    	mark.append(td_mark)
+	type.append(td_type)
+	score.append(td_score)
+	time.append(td_time)
+
+
+connection = pymysql.connect(host = 'localhost',
+                            user = 'root',
+                             password = '123456',
+                             database = 'university_mark',
+                             charset = 'gb2312')
+for i in range(len(name)):  
+	print(name[i])    
+	try:
+		with connection.cursor() as cursor:
+            		sql = 'insert into my_university_mark (course_name,course_mark,course_time,course_score,course_type) values (%s,%s,%s,%s,%s)'
+			cursor.execute(sql,(name[i],mark[i],time[i],score[i],type[i]))
+ 			connection.commit()
+    except pymysql.DatabaseError:
+		connection.rollback()
+connection.close()
+HTML代码：
+list.Php
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<title>全部成绩</title>
+<link href="../sy/sy8/css.css" rel="stylesheet" type="text/css">
+</head>
+
+<body background="image/下载.jpg">
+<table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td width="294" align="center">课程名字</td>
+    <td width="89" align="center">学分</td>
+    <td width="105" align="center">分数</td>
+    <td width="158" align="center">考试时间</td>
+    <td width="132" align="center">类型</td>
+  </tr>
+<?php 
+require("conn.php");
+$sql = "Select * From my_university_mark";
+$rs=new com("adodb.recordset");
+$rs->open($sql,$db,1,1);//执行语句,返回记录集 
+while(! $rs->eof)
+{
+?>
+  <tr>
+    <td align="center"><?php echo $rs->Fields("course_name")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_mark")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_score")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_time")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_type")->value; ?></td>
+  </tr>
+<?php
+ echo  $rs->MoveNext(); 
+} ?>
+</table>
+
+</body>
+</html>
+Body.php
+<html>
+<body background="image/下载.jpg">
+<table width="800" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td width="100" align="center">操作</td>
+    <td width="600" align="center">我的成绩</td>
+  </tr>
+  <tr>
+    <td width="100" align="center">&nbsp;</td>
+    <td width="600" align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="100" valign="top">
+	<?php  include("seek.php");
+	include("op.php"); 
+	 ?>
+	</td>
+    <td><?php echo include("list.php"); ?></td>
+  </tr>
+</table>
+</body>
+</html>
+
+Conn.php
+<?php
+$db = new com("adodb.connection");
+$dir = "date/university_mark.mdb";
+
+$cnstr="Driver={Microsoft Access Driver (*.mdb)};Uid=;Pwd=;DBQ=".realpath($dir);
+
+$db->open($cnstr);//调用com类的open方法来执行上述连接驱动
+?>
+Op.php
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr><td align="center"><a href="op1.php">必修课成绩</a></td></tr>
+	<tr><td align="center">&nbsp;  </td></tr>
+	<tr><td align="center"><a href="op2.php">限选课成绩</a></td></tr>
+	<tr><td align="center">&nbsp; </td></tr>
+	<tr><td align="center"><a href="op3.php">任选课成绩</a></td></tr>
+	<tr><td align="center">&nbsp; </td></tr>
+	<tr><td align="center"><a href="op4.php">第一学期成绩</a></td></tr>
+	<tr><td align="center">&nbsp; </td></tr>
+	<tr><td align="center"><a href="op5.php">第二学期成绩</a></td></tr>
+	<tr><td align="center">&nbsp; </td></tr>
+	<tr><td align="center"><a href="op6.php">第三学期成绩</a></td></tr>
+	<tr><td align="center">&nbsp; </td></tr>
+	<tr><td align="center"><a href="op7.php">第四学期成绩</a></td></tr>
+	<tr><td align="center">&nbsp; </td></tr>
+	<tr><td align="center"><a href="op8.php">第五学期成绩</a></td></tr>
+</table>
+Op1_op8类似
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<title>必修课成绩</title>
+<link href="css.css" rel="stylesheet" type="text/css">
+</head>
+
+<body background="image/下载.jpg">
+<table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td width="294" align="center">课程名字</td>
+    <td width="89" align="center">学分</td>
+    <td width="105" align="center">分数</td>
+    <td width="158" align="center">考试时间</td>
+    <td width="132" align="center">类型</td>
+  </tr>
+    <tr>
+    <td width="100" align="center">&nbsp;</td>
+    <td width="600" align="center">&nbsp;</td>
+  </tr>
+<?php 
+require("conn.php");
+$sql = "Select * From my_university_mark where course_type='必修'";
+$rs=new com("adodb.recordset");
+$rs->open($sql,$db,1,1);//执行语句,返回记录集 
+while(! $rs->eof)
+{
+?>
+  <tr>
+    <td align="center"><?php echo $rs->Fields("course_name")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_mark")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_score")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_time")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_type")->value; ?></td>
+  </tr>
+<?php
+ echo  $rs->MoveNext(); 
+} ?>
+</table>
+
+</body>
+</html>
+Seek.php
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+  <tr>
+    <td align="center" >成绩查询</td>
+  </tr>
+  <tr>
+    <td align="center"><form action="../linux/seek_list.php" method="post" name="formseek" target="_blank">
+	<input name="kkk" type="text" size="20" maxlength="20"><br>
+	<input name="" type="submit" value="查询">
+	</form></td>
+  </tr>
+</table>
+Seek_list.php
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<title>成绩查询</title>
+<link href="css.css" rel="stylesheet" type="text/css">
+</head>
+
+<body background="image/下载.jpg">
+<table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td width="294" align="center">课程名字</td>
+    <td width="89" align="center">学分</td>
+    <td width="105" align="center">分数</td>
+    <td width="158" align="center">考试时间</td>
+    <td width="132" align="center">类型</td>
+  </tr>
+<?php include("conn.php");
+$key=$_POST["kkk"];
+$sql = "Select * From my_university_mark where course_name like '%{$key}%'";
+$rs=new com("adodb.recordset");
+$rs->open($sql,$db,1,1);//执行语句,返回记录集
+while(! $rs->eof)
+{
+?>
+  <tr>
+    <td align="center"><?php echo $rs->Fields("course_name")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_mark")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_score")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_time")->value; ?></td>
+    <td align="center"><?php echo $rs->Fields("course_type")->value; ?></td>
+  </tr>
+<?php
+ echo  $rs->MoveNext(); 
+} ?>
+</table>
+
+</body>
+</html>
+5、上传
+五、工具
+利用Python爬取学校教务网站内容
+租用阿里云服务
+搭建LAMP环境
+利用FTP软件实现云服务器和本机之间文件的上传与下载
+主要语言：php，html，Python语言,css。
+六、结果
+   
+
