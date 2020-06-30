@@ -1,0 +1,70 @@
+#!/bin/bash
+ShowTaskPypeMenu()
+{
+   echo "==================================================="
+   echo "Please choose one of the ways which you want to do "
+   echo "[1] eg: a+b"
+   echo "[2] eg: a-b"
+   echo "[3] eg: a*b"
+   echo "[4] eg: a/b"
+   echo "[0] Exit"
+}
+
+get_cmd()
+{
+   printf "\nPlease input your choice:"
+   read cmd
+}
+
+while((1))
+do
+   ShowTaskPypeMenu
+   get_cmd
+   case $cmd in
+   "1")
+       echo "please input two numbers: a b "
+       read a b
+       z=`expr $a + $b`
+       printf "\n"
+       echo "The result is: $a+$b= $z"
+       printf "\nPlease press Enter to go on ..."
+       read anykey
+       ;;
+   "2")
+       echo "please input two numbers: a b "
+       read a b
+       z=`expr $a - $b`
+       printf "\n"
+       echo "The result is: $a-$b= $z"
+       printf "\nPlease press Enter to go on..."
+       read anykey
+       ;;
+   "3")
+       echo "please input two numbers: a b "
+       read a b
+       z=`expr $a \* $b`
+       printf "\n"
+       echo "The result is: $a*$b= $z"
+       printf "\nPlease press Enter to go on..."
+       read anykey
+       ;;
+   "4")
+       echo "please input two numbers: a b "
+       read a b
+       z=`expr $a / $b`
+       printf "\n"
+       echo "The result is: $a/$b= $z"
+       printf "\nPlease press Enter to go on..."
+       read anykey
+       ;;
+   "0")
+       echo "Thank you to use it!!!"
+       printf "\n"
+       exit
+       ;;
+     *)
+      echo "ERR...     please input again...[0,1,2,3,4]"
+      printf "\n"
+   esac
+done
+
