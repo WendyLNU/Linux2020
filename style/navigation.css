@@ -1,0 +1,143 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+
+*{
+	margin:0px;
+	padding: 0px;
+	color: #FFF;
+	font-family: "微软雅黑";
+
+	
+	
+	}
+.top{
+	 
+	width: 1024px;;
+	height: 35px;
+	
+	background-color: #494949;
+	margin-right: auto;
+	margin-bottom: 0px;
+	margin-left: auto;
+	}
+.top-bg{
+	width: 100%;
+	height: 35px;
+	background-color: #494949;
+	line-height: 35px;
+	}
+/*----------------------------------------
+ #nav {
+	font-family: helvetica;
+	position: relative;
+	width: 377px;
+	height: 35px;
+	font-size: 14px;
+	color: #999;
+	margin-bottom: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+ #nav ul {  }
+ #nav ul li { float:left; position: relative;}
+ #nav ul li a { border-right:1px solid #e9e9e9; padding:20px; display:block; text-decoration:none; text-
+align:center; color:#999;}
+ #nav ul li a:hover {background: #12aeef repeat-x;; 
+color:#fff;} 
+
+ #nav ul li ul {display: none;}
+ #nav ul li:hover ul {display: block; position: absolute; top:56px; min-width:190px; left:0;} 
+ #nav ul li:hover ul li a {display:block; background:#12aeef; color:#ffffff; width: 110px; text-align: 
+center; border-bottom: 1px solid #f2f2f2; border-right: none;}
+ #nav ul li:hover ul li a:hover { background:#6dc7ec; color:#ffffff; }
+
+----------------------------------------*/
+#nav {
+	width: 400px;
+	height: 35px;
+	opacity:1;
+}
+#nav ul{list-style-type:none; background-color:#C93;}
+#nav ul li{
+	float: left;
+	width: 80px;
+	height: 32px;
+	line-height: 32px;
+	text-align: center;
+	background-color: #333333;
+}
+#nav ul li:hover{
+	background-color: #202020;
+}
+#nav ul li ul
+{	width:80px;
+	position:absolute;
+	left:-600px;
+}
+#nav ul li:hover ul 
+{
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
+/*--------------------------------------*/
+.dz
+{
+	width:80px;
+	height:35px;
+	display:block;
+	list-style-type:none;
+	float:left;
+	
+	}
+.dz1
+{
+	width:80px;
+	height:35px;
+	display:block;
+	list-style-type:none;
+	float:left;
+	text-align:center;
+background-color: #424242;
+	
+	}
+.dz1:hover
+{background-color: #202020;
+text-align:center;
+	}
+.shouye{
+	border-top:#be4c39 solid 3px;
+}
+.tietie{
+	border-top:#844d94 solid 3px;
+}
+.yinyue{
+		border-top:#49924f solid 3px;
+	
+}
+.keji{
+border-top:#4268a4 solid 3px;
+}
+.dianying{
+	border-top:#ba8b09 solid 3px;
+}
+/*-------*/
+#nav ul .shouye:hover{
+	background-color:#be4c39;
+}
+#nav ul .tietie:hover{
+	background-color:#844d94;
+}
+
+#nav ul .yinyue:hover{
+	background-color:#49924f;
+
+}
+#nav ul .keji:hover{
+	background-color:#4268a4 ;
+	
+}
+#nav ul .dianying:hover{
+	background-color:#ba8b09;
+}
