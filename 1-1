@@ -1,0 +1,11 @@
+#!/bin/sh
+for  user  in  chuji1 chuJi2 chuji3  net1 senior1 manager1
+do
+useradd  $user
+echo  “1” | passwd --stdin  $user
+done
+groupadd   -g  333 chujiyw
+gpasswd -a chuji1 chujiyw
+gpasswd -a chuji2 chujiyw
+gpasswd -a chuji3 chujiyw
+ 
