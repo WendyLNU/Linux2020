@@ -1,0 +1,289 @@
+@charset "utf-8";
+/* CSS Document */
+*{
+	margin: 0px;
+	padding: 0px;
+	font-family: "微软雅黑";
+	}
+.left{
+	padding-left:10px;
+	float:left;
+	width:700px;
+	min-height:80px;
+	height:auto;
+	
+		}
+.right
+{
+	font-size:14px;
+	float:right;
+	width:100px;
+	height:80px;
+	
+	}
+.frame
+{
+	height:140px;
+	margin-top: 0px;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+}
+/*--------------------------------------------*/
+.bottom-bg
+{
+	width: 100%;
+	height:105px;
+	background-color: #e5e5e5;
+	
+}
+.top-bg5{
+	width: 100%;
+	height:105px;
+	background-color: #de704d;
+	
+}
+.top5{
+	background-image:url(../images/%E5%A4%A7%E6%9D%82%E7%83%A9top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}
+	
+.top-bg6{
+	width: 100%;
+	height:105px;
+	background-color: #cf7e46;
+	
+}
+.top6{
+	background-image:url(../images/%E7%94%9F%E6%B4%BB%E9%A6%86top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}	
+	
+
+.top-bg7{
+	width: 100%;
+	height:105px;
+	background-color: #429dbc;
+	
+}
+.top7{
+	background-image:url(../images/%E5%A8%B1%E4%B9%90%E9%A6%86top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}	
+.top-bg8{
+	width: 100%;
+	height:105px;
+	background-color: #40939b;
+	
+}
+.top8{
+	background-image:url(../images/%E5%8D%8E%E8%AF%ADtop.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}	
+	
+.top-bg9{
+	width: 100%;
+	height:105px;
+	background-color: #9465cf;
+	
+}
+.top9{
+	background-image:url(../images/%E6%AC%A7%E7%BE%8Etop.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}
+	
+.top-bg10{
+	width: 100%;
+	height:105px;
+	background-color: #429857;
+	
+}
+.top10{
+	background-image:url(../images/%E6%97%A5%E9%9F%A9top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}
+	
+.top-bg11{
+	width: 100%;
+	height:105px;
+	background-color: #d5783b;
+	
+}
+.top11{
+	background-image:url(../images/%E6%89%8B%E6%9C%BAtop.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}	
+.top-bg12{
+	width: 100%;
+	height:105px;
+	background-color: #5977bd;
+	
+}
+.top12{
+	background-image:url(../images/%E7%94%B5%E8%84%91top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}	
+
+.top-bg13{
+	width: 100%;
+	height:105px;
+	background-color: #d06145;
+	
+}
+.top13{
+	background-image:url(../images/%E7%9B%B8%E6%9C%BAtop.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}
+	
+	
+.top-bg14{
+	width: 100%;
+	height:105px;
+	background-color: #5f6aaa;
+	
+}
+.top14{
+	background-image:url(../images/%E6%9C%80%E6%96%B0top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}	
+	
+	
+.top-bg15{
+	width: 100%;
+	height:105px;
+	background-color: #a0a0a0;
+	
+}
+.top15{
+	background-image:url(../images/%E7%BB%8F%E5%85%B8top.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}
+	
+.top-bg16{
+	width: 100%;
+	height:105px;
+	background-color:#466fc7;
+	
+}
+.top16{
+	background-image:url(../images/%E4%B8%8B%E8%BD%BDtop.jpg);
+	background-repeat:no-repeat;
+	width: 900px;
+	height: 105px;
+	line-height: 100px;
+	margin: 0px auto;
+	font-size: 24px;
+	
+	}
+
+
+.main-bg
+{
+	padding-top: 10px;
+	padding-bottom: 10px;
+	height: auto;
+	background-image: url(../images/%E6%98%9F%E6%98%9F.jpg);
+}
+.main{
+	padding-top: 10px;
+	margin: 0px auto;
+	width: 1024px;
+	height: auto;
+	background-color: #FFF;
+	}
+.mark{
+	margin: 10px auto;
+	width: 900px;
+	min-height:80px;
+	height:auto;
+    background-color: #FFFFFF;
+	border-bottom: 1px dashed #CCCCCC;
+	
+	}
+.topic-div{
+	margin-left:auto;
+	margin-right:auto;
+	width: 900px;;
+	height: 300px;
+	
+	
+	}
+.topic{
+
+	width: 100%;
+	height: 300px;
+	
+	
+	}
+.weiye
+{
+	
+	width:900px;
+	margin:0px auto;
+}
