@@ -1,0 +1,438 @@
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<netinet/in.h>
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<ctype.h>
+#include<pthread.h>
+#include<unistd.h>
+#include<string.h>
+#include<sys/param.h>
+
+/*
+ ==================================================
+ ********************函数声明**********************
+ ==================================================
+ */
+
+ /*
+ * 读取一行请求
+ * 参数：套接字，保存数据的buffer，buffer大小
+ * 返回值：请求长度
+ */
+int get_line(int sock, char *buf, int size);
+
+/*
+ * 返回 200 OK
+ */
+void response_200(int client, const char* path);
+
+ /*
+ * 返回 400 BAD REQUEST
+ */
+void response_400(int client);
+
+/*
+ * 返回 404 NOT FOUND
+ */
+void response_404(int client);
+
+/*
+ * 返回 501 Method Not Implemented
+ */
+void response_501(int client);
+
+/*
+ * 向客户端发送文件
+ * 参数：客户端套接口描述字，请求地址，标记1：GET  0：POST
+ */
+void response_file(int client, const char* path, int tag);
+
+/*
+ * 处理 get 的查询参数，提取客户端提交的数据，向客户端发送结果
+ * 参数：客户端套接口描述字，请求地址，? 后面的参数，以 & 隔开
+ */
+ void slove_get(int client, const char* path, const char* query);
+
+ /*
+ * 处理 post 的查询参数，提取客户端提交的数据，向客户端发送结果
+ * 参数：客户端套接口描述字，请求地址，请求报文主体长度
+ */
+void slove_post(int client, const char* path, int cont_len);
+
+/*
+ * 启动服务器
+ * 返回服务器套接口描述字
+ */
+int start(int *port);
+
+/*
+ *	处理客户端请求
+ */
+void  accept_request(int client);
+
+/*
+ *	初始化为守护进程
+ */
+void init_daemon();
+
+ /*
+ ==================================================
+ ********************主函数************************
+ ==================================================
+ */
+
+ int main(int argc, char* argv[]) {
+	FILE *fp;
+	int port = 8080;
+	if((fp=fopen("web.log","a")) < 0)
+		perror("fopen error!\n");
+	fprintf(fp,"httpd running on port %d.\n", port);
+   	init_daemon(); //初始化为守护进程
+	int server_sockfd = start(&port);
+      	puts("开始运行");
+	while (1) {
+		pthread_t tid; //用于声明线程ID
+		pthread_create；
+		struct sockaddr_in client_addr;
+		int client_addrlen = sizeof(client_addr);
+		//接收客户的连接请求
+		int client_sockfd = accept(server_sockfd,
+					(struct sockaddr*)& client_addr,
+					&client_addrlen);
+		if (client_sockfd < 0) {
+			perror("accept error!\n");
+			break;
+		}
+		if (pthread_create(&tid, NULL, accept_request, (void*)client_sockfd) != 0)
+			perror("pthread_create error\n");
+	}
+	close(server_sockfd);
+        fclose(fp);
+
+	return 0;
+}
+
+
+/*
+ ==================================================
+ ********************函数实现**********************
+ ==================================================
+ */
+
+
+/*
+ * 读取一行请求
+ * 参数：客户端套接口描述字，保存数据的buffer，buffer大小
+ * 返回值：请求长度
+ */
+int get_line(int sock, char *buf, int size) {
+	int cnt = 0;
+	char c = '\0';
+	int n;
+	while ((cnt < size-1) && (c != '\n')) {
+		n = read(sock, &c, 1); //读一个字符放到c中
+		if (n > 0) {
+			if (c == '\r') {
+				//MSG_PEEK不会使套接字接收队列中的数据减少
+				n = recv(sock, &c, 1, MSG_PEEK);
+				if ((n > 0) && (c == '\n'))
+					read(sock, &c, 1);
+					//实际上和上面MSG_PEEK是同一个字符
+				else
+					c = '\n';
+			}
+			buf[cnt++] = c;
+		}
+		else c = '\n';
+	}
+	buf[cnt] = '\0';
+	return cnt;
+}
+
+/*
+ * 返回 200 OK
+ */
+void response_200(int client, const char* path) {
+	const char* buf = "HTTP/1.0 200 OK\r\n"
+	"Server: hyh httpd \r\n"
+	"Content-Type: text/html\r\n"
+	"\r\n";
+	write(client, buf, strlen(buf));
+}
+/*
+ * 返回 400 BAD REQUEST
+ */
+void response_400(int client)
+{
+	const char* buf = "HTTP/1.0 400 BAD REQUEST\r\n"
+	"Server: hyh httpd \r\n"
+	"Content-Type: text/html\r\n"
+	"\r\n"
+	"<p>ERROR REQUEST</p>\r\n";
+
+	write(client, buf, strlen(buf));
+}
+
+/*
+ * 返回 404 NOT FOUND
+ */
+void response_404(int client) {
+	const char* buf = "HTTP/1.0 404 NOT FOUND\r\n"
+	"Server: hyh httpd \r\n"
+	"Content-Type: text/html\r\n"
+	"\r\n"
+	"<html>"
+	"<meta charset=UTF-8>"
+	"<head><title>404 NOT FOUND\r\n</title></head>"
+	"<body><p>页面找不到 404 ！！！</p></body>"
+	"</html>";
+	write(client, buf, strlen(buf));
+}
+
+/*
+ * 返回 501 Method Not Implemented
+ */
+void response_501(int client) {
+	const char* buf = "HTTP/1.0 501 Method Not Implemented\r\n"
+	"Server: hyh httpd \r\n"
+	"Content-Type: text/html\r\n"
+	"\r\n"
+	"<html>"
+	"<meta charset=UTF-8>"
+	"<head><title>501 Method Not Implemented\r\n</title></head>"
+	"<body><p>Sorry，该请求方法未实现！</p></body>"
+	"</html>";
+	write(client, buf, strlen(buf));
+}
+
+/*
+ * 向客户端发送文件
+ * 参数：客户端套接口描述字，请求地址，标记1：GET  0：POST
+ */
+void response_file(int client, const char* path, int tag) {
+	FILE* file;
+	char buf[1024];
+	if (tag)
+		while (get_line(client, buf, sizeof(buf)) > 0 && strcmp("\n", buf));
+	//如果文件不存在，返回404
+	if ((file = fopen(path, "r")) == NULL) response_404(client);
+	else {
+		bzero(buf, sizeof(buf));
+		response_200(client, path);
+		int len = 0;
+		while ((len = fread(buf, sizeof(char), sizeof(buf), file)) > 0) {
+			if (send(client, buf, len, 0) < 0) {
+				perror("send failed!\n");
+				break;
+			}
+			bzero(buf, sizeof(buf));
+		}
+	}
+	fclose(file);
+}
+
+/*
+ * 处理 get 的查询参数，提取客户端提交的数据，向客户端发送结果
+ * 参数：客户端套接口描述字，请求地址，? 后面的参数，以 & 隔开
+ */
+ void slove_get(int client, const char* path, const char* query) {
+	 int i = 0, j = 0;
+	 char content[50];
+	 while (query[j] != '\n') {
+		 if (query[j] == '&') {
+			 content[i++] = '\n';
+			 j++;
+		 }
+		 content[i++] = query[j++];
+	 }
+	content[i] = '\0';
+	response_file(client, path, 1);
+	char buf[1024] = "<html>"
+	"<head><title>GET test</title></head>"
+	"<body><p>";
+	strcat(buf, content);
+	char *str = "</p></body>"
+	"</html>";
+	strcat(buf, str);
+//puts(buf);
+
+	write(client, buf, strlen(buf));
+}
+
+/*
+ * 处理 post 的查询参数，提取客户端提交的数据，向客户端发送结果
+ * 参数：客户端套接口描述字，请求地址，请求报文主体长度
+ */
+void slove_post(int client, const char* path, int cont_len) {
+	char content[50];
+	int i;
+	for (i = 0; i < cont_len; i++) {
+		read(client, &content[i], 1);
+		if (content[i] == '&')
+			content[i] = '\n';
+	}
+	content[i] = '\0';
+	char c;
+//puts(path);
+	response_file(client, path, 0);
+puts("post over");
+	char buf[1024] = "<html>"
+	"<head><title>POST test</title></head>"
+	"<body><p>";
+	strcat(buf, content);
+	char *str = "</p></body>"
+	"</html>";
+	strcat(buf, str);
+//puts(buf);
+
+	write(client, buf, strlen(buf));
+}
+
+/*
+ * 启动服务器
+ * 返回服务器套接口描述字
+ */
+int start(int *port) {
+	//创建套接字 socket
+	int server_sockfd = socket(PF_INET, SOCK_STREAM, 0);
+	if (server_sockfd == -1) perror("socket error\n");
+
+	struct sockaddr_in server_addr;
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(*port);
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	//绑定套接字
+	if (bind(server_sockfd,
+			(struct sockaddr*)&server_addr,
+			sizeof(server_addr)) < 0)
+		perror("bind error\n");
+
+	//启动监听
+	if (listen(server_sockfd, 5) < 0)
+		perror("listen error\n");
+
+	return server_sockfd;
+}
+/*
+ *	处理客户端请求
+ */
+void  accept_request(int client) {   //
+	char buf[1024];
+	char method[255];
+	char url[255];
+	char path[512];
+	int i = 0, j = 0;
+	char *query = NULL;
+	struct stat st;
+	int is_get = 0;
+
+	//获取第一行HTTP报文
+	int tag = get_line(client, buf, sizeof(buf));
+
+	//提取HTTP报文的请求方法
+	while (!isspace (buf[j]) && (i < sizeof(method) -1)) {
+		method[i++] = buf[j++];
+	}
+	method[i] = '\0';
+	//如果请求方法不是GET或者POST，返回501
+	if (strcasecmp(method, "GET") && strcasecmp(method, "POST")) {
+		response_501(client);
+		close(client);
+		return;
+	}
+
+	//忽略请求方法后的空白字符
+	while (isspace (buf[j]) && (j < sizeof(buf))) j++;
+	//提取HTTP报文的URL
+	i = 0;
+	while (!isspace(buf[j]) && (i < sizeof(url) - 1) && (j < sizeof(buf))) {
+		url[i++] = buf[j++];
+	}
+	url[i] = '\0';
+
+	//如果请求方法是GET，URL可能会带有?
+	if (strcasecmp(method, "GET") == 0) {
+		query = url;
+		while ((*query != '?') && (*query != '\0'))
+			query++;
+		//如果带有?说明有查询参数，需要处理
+		if (*query == '?') {
+			is_get = 1;
+			//在?处将URL分割
+			*query = '\0';
+			//指针指向?的下一个字符
+			query++;
+		}
+		//将?之前的url拼接在htdocs后，储存到path中
+		sprintf(path, ".%s", url);
+		//如果path以/结尾，访问默认文件index.html
+		if (path[strlen(path) - 1] == '/')
+			strcat(path, "index.html");
+		//根据路径找文件，并获取path文件信息保存到结构体st中
+		if (stat(path, &st) == -1) {
+			perror("find file error!\n");
+			//如果不存在，读取剩余请求并忽略，然后返回404
+			while(tag && strcmp("\n", buf))
+				tag = get_line(client, buf, sizeof(buf));
+			response_404(client);
+		}
+		else {//如果存在
+			if (is_get)//有参数，需要处理
+				slove_get(client, path, query);
+			//无参数，直接返回请求文件
+			else response_file(client, path, 1);
+		}
+	}
+	//如果请求方法是POST
+	else {
+		int cont_len;
+		while (get_line(client, buf, sizeof(buf)) > 0 && strcmp("\n", buf)) {
+//puts("content:");
+//puts(buf);
+			if (strncasecmp(buf, "Content-Length:", 15) == 0) {
+				//提取请求报文主体的长度
+				cont_len = atoi(&(buf[16]));
+//printf("%d\n", cont_len);
+			}
+		}
+		if (cont_len == -1) {
+			response_400(client);
+			return;
+		}
+		sprintf(path, ".%s", url);
+//puts(path);
+		slove_post(client, path, cont_len);
+		}
+	close(client);
+}
+
+/*
+ *	初始化为守护进程
+ */
+void init_daemon() {
+
+    int pid;
+    int i;
+    if(pid=fork())
+        exit(0);//是父进程，结束父进程
+    else if(pid< 0)
+        exit(1);//fork失败,退出
+
+    //是第一子进程,后台继续执行
+    setsid();//第一子进程成为新的会话组长和进程组长,并与控制终端分离
+    if(pid=fork())
+        exit(0);//是第一子进程，结束第一子进程
+    else if(pid< 0)
+        exit(1);//fork失败,退出
+
+    //是第二子进程,继续,第二子进程不再是会话组长
+    for(i=0;i< NOFILE;++i)//关闭打开的文件描述符
+	close(i);
+
+    umask(0);//重设文件创建掩模
+    return;
+}
